@@ -1,0 +1,82 @@
+<template>
+    <v-container fluid class="activity-form-container">
+      <v-card class="activity-form-card mx-auto" max-width="600" elevation="8">
+        <v-card-title class="text-h4 font-weight-bold text-center my-6">
+          Lobby
+        </v-card-title>
+  
+        <v-card-text>
+            <p class="text-subtitle-1 mb-2">
+                Lobby Code: <strong>{{ lobbyCode }}</strong>
+            </p>
+            <p class="text-subtitle-1 mb-2">Players in the Lobby:</p>
+            <v-list dense>
+                <v-list-item
+                    v-for="player in players"
+                    :key="player.userId"
+                    class="player-list-item"
+                >
+                    <p>{{ player.name }}</p>
+                </v-list-item>
+            </v-list>
+        </v-card-text>
+  
+        <v-card-actions class="justify-center pb-6">
+          <v-btn
+            v-if="isAdmin"
+            color="success"
+            x-large
+            rounded
+            elevation="2"
+            @click="startGame"
+            class="start-button font-weight-bold"
+          >
+            Start Game
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-container>
+  </template>
+  
+  <script setup>
+  import { ref, onMounted } from "vue";
+  import { useRouter } from "vue-router";
+  import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+  import { db, auth } from "../firebase";
+  
+  const players = ref([]);
+  const isAdmin = ref(false);
+  const mode = ref(new URLSearchParams(window.location.search).get("mode"));
+  const router = useRouter();
+  const lobbyId = new URLSearchParams(window.location.search).get("id");
+  const lobbyCode = ref("");
+  const isStarted = ref(false);
+  
+  onMounted(() => {
+    const lobbyDoc = doc(db, "lobbies", lobbyId);
+    onSnapshot(lobbyDoc, (snapshot) => {
+        const lobbyData = snapshot.data();
+        players.value = lobbyData.players;
+        lobbyCode.value = lobbyData.code;
+        isStarted.value = lobbyData.isStarted || false; // Default to false if undefined
+        isAdmin.value = lobbyData.adminId === auth.currentUser.uid;
+
+        // Redirect to the game if the game is started
+        if (isStarted.value) {
+        router.push(`/game?id=${lobbyId}&mode=${mode.value}`);
+        }
+    });
+  });
+  
+  const startGame = async () => {
+    const lobbyDoc = doc(db, "lobbies", lobbyId);
+    await updateDoc(lobbyDoc, { isStarted: true });
+    router.push(`/game?id=${lobbyId}&mode=${mode.value}`);
+  };
+  </script>
+  
+  <style scoped>  
+  .player-list-item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  </style>

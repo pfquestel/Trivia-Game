@@ -112,70 +112,57 @@
   const user = auth.currentUser;
   const mode = selectedMode.value;
 
-  // Fetch questions for the selected mode to determine totalQuestions
   const questionsSnapshot = await getDocs(
     query(collection(db, "questions"), where("mode", "==", mode))
   );
   const totalQuestions = questionsSnapshot.size;
 
-  const code = nanoid(6); // Generate a unique 6-character code
+  const code = nanoid(6);
 
-  // Create the lobby document in Firestore
   const lobby = await addDoc(collection(db, "lobbies"), {
     adminId: user.uid,
     players: [{ userId: user.uid, name: name.value, score: 0 }],
     mode,
     questionIndex: 0,
     code,
-    totalQuestions, // Store total questions in the lobby
+    totalQuestions,
   });
 
-  // Redirect to the lobby page
   router.push(`/lobby?id=${lobby.id}&mode=${mode}`);
 };
 
-  
-  const joinLobby = async () => {
-  // Query the database for the lobby with the given code
+const joinLobby = async () => {
   const q = query(collection(db, "lobbies"), where("code", "==", lobbyCode.value));
   const querySnapshot = await getDocs(q);
 
   if (!querySnapshot.empty) {
     const lobby = querySnapshot.docs[0];
-    const lobbyRef = lobby.ref; // Reference to the lobby document
+    const lobbyRef = lobby.ref;
     const lobbyData = lobby.data();
 
-    // Get the current user details
     const user = auth.currentUser;
     if (!user) {
       alert("You must be signed in to join a lobby.");
       return;
     }
 
-    // Check if the user is already in the lobby's player list
     const isAlreadyInLobby = lobbyData.players.some(
       (player) => player.userId === user.uid
     );
 
     if (!isAlreadyInLobby) {
-      // Add the user to the player list
-      const newPlayer = {
-        userId: user.uid,
-        name: name.value,
-        score: 0,
-      };
-
+      const newPlayer = { userId: user.uid, name: name.value, score: 0 };
       await updateDoc(lobbyRef, {
         players: [...lobbyData.players, newPlayer],
       });
     }
 
-    // Redirect the user to the lobby
     router.push(`/lobby?id=${lobby.id}&mode=${lobbyData.mode}`);
   } else {
     alert("Invalid lobby code.");
   }
 };
+
 
   </script>
   

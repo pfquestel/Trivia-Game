@@ -73,6 +73,7 @@
     await updateDoc(lobbyDoc, { isStarted: true });
     router.push(`/game?id=${lobbyId}&mode=${mode.value}`);
   };
+
   </script>
   
   <style scoped>  

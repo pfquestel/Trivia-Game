@@ -92,16 +92,16 @@ onMounted(() => {
   onSnapshot(lobbyDoc, async (snapshot) => {
     const lobbyData = snapshot.data();
     players.value = lobbyData.players;
+    const mode = lobbyData.mode;
 
     // Load questions if not already loaded
     if (!questions.value.length) {
-      const mode = lobbyData.mode;
       questions.value = await loadQuestions(mode);
     }
 
     // Redirect to leaderboard if the game is complete
     if (lobbyData.questionIndex >= questions.value.length) {
-      router.push(`/leaderboard?id=${lobbyId}`);
+      router.push(`/leaderboard?id=${lobbyId}&mode=${mode}`);
     } else {
       // Reset selectedAnswer only if the questionIndex changes
       if (currentQuestionIndex.value !== lobbyData.questionIndex) {

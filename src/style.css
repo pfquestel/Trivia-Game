@@ -55,3 +55,40 @@ button.mode-card.selected-card:disabled .v-btn__overlay {
 .start-button:not(:disabled):hover {
   transform: scale(1.05);
 }
+
+.player-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px; /* Adds consistent spacing between cards */
+}
+
+.player-item {
+  flex: 1 1 calc(20% - 16px); /* Flex-grow, flex-shrink, and a minimum width of ~20% minus gap */
+  min-width: 150px; /* Ensures cards don’t get too small */
+  max-width: 250px; /* Prevents cards from getting too large */
+  background-color: #f1f3f4;
+  padding: 16px;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.player-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.leaderboard-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+
+.leaderboard-card:hover {
+  transform: scale(1.05);
+}

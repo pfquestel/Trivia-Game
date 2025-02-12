@@ -8,30 +8,29 @@
       <v-card-text>
         <!-- Conditional Render Based on Mode -->
         <template v-if="mode === 'world_trivia'">
-          <v-list>
-            <v-list-item
+          <v-row dense>
+            <v-col
               v-for="player in sortedPlayers"
               :key="player.userId"
-              class="player-list-item"
+              cols="12"
+              sm="6"
+              md="4"
+              lg="3"
             >
-              <v-row>
-                <v-col>
-                  <strong>{{ player.name }}</strong>
-                </v-col>
-                <v-col>
+              <v-card class="pa-4 leaderboard-card" outlined>
+                <v-card-title class="text-center">{{ player.name }}</v-card-title>
+                <v-card-text class="text-center">
                   <v-progress-linear
                     :model-value="player.percentage"
                     color="primary"
                     height="20"
                     rounded
                   ></v-progress-linear>
-                  <div>
-                    {{ player.percentage }}% ({{ player.score }}/{{ totalQuestions }})
-                  </div>
-                </v-col>
-              </v-row>
-            </v-list-item>
-          </v-list>
+                  <div class="mt-2">{{ player.percentage }}% ({{ player.score }}/{{ totalQuestions }})</div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
         </template>
 
         <template v-else-if="mode === 'would_you_rather'">
@@ -169,7 +168,6 @@ const sortedPlayers = computed(() => {
 
 
 <style scoped>
-.player-list-item,
 .question-item {
   margin-bottom: 16px;
 }

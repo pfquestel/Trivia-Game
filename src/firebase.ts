@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInAnonymously } from "firebase/auth";
+import { getAuth, setPersistence, browserSessionPersistence, signInAnonymously, signOut } from "firebase/auth";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -15,9 +15,29 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-signInAnonymously(auth).then((user) => {
-  console.log("User signed in anonymously", user);
-});
+// signInAnonymously(auth).then((user) => {
+//   console.log("User signed in anonymously", user);
+// });
+
+// Temporary for testing
+// Ensure no existing user session
+signOut(auth)
+  .then(() => {
+    console.log("Signed out from previous session.");
+
+    // Set session-based persistence
+    return setPersistence(auth, browserSessionPersistence);
+  })
+  .then(() => {
+    // Sign in anonymously with new session-based persistence
+    return signInAnonymously(auth);
+  })
+  .then((userCredential) => {
+    console.log("New anonymous user:", userCredential.user.uid);
+  })
+  .catch((error) => {
+    console.error("Error signing in with session persistence:", error);
+  });
 
 // Questions to seed
 const questions = [

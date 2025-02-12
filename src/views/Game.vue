@@ -60,7 +60,33 @@
           <p v-if="isAdmin && !allAnswered" class="text-caption mt-2">
             Not all players have answered yet.
           </p>
+
+          <!-- End Game Button -->
+          <v-btn
+            v-if="isAdmin"
+            color="error"
+            x-large
+            rounded
+            elevation="2"
+            @click="showEndGameDialog = true"
+            class="start-button font-weight-bold ml-4"
+          >
+            End Game
+          </v-btn>
         </v-card-actions>
+
+        <!-- Vuetify Dialog for End Game Confirmation -->
+        <v-dialog v-model="showEndGameDialog" max-width="500">
+          <v-card>
+            <v-card-title class="text-h5">End Game Confirmation</v-card-title>
+            <v-card-text>Are you sure you want to end the game? This action cannot be undone.</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="grey" text @click="showEndGameDialog = false">Cancel</v-btn>
+              <v-btn color="error" text @click="endGame">End Game</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-card>
     </v-container>
   </template>
@@ -72,6 +98,7 @@ import { doc, onSnapshot, updateDoc, getDocs, query, collection, where, arrayUni
 import { db, auth } from "../firebase";
 import { useRouter } from "vue-router";
 
+const showEndGameDialog = ref(false);
 const currentQuestion = ref({ question: "", answers: [] });
 const currentQuestionIndex = ref(null); // Track the current question index
 const randomizedAnswers = ref([]);
@@ -191,6 +218,13 @@ const nextQuestion = async () => {
 
   await updateDoc(lobbyDoc, { questionIndex: newIndex });
 };
+
+const endGame = async () => {
+  const lobbyDoc = doc(db, "lobbies", lobbyId);
+  await updateDoc(lobbyDoc, { questionIndex: questions.value.length });
+  showEndGameDialog.value = false;
+};
+
 </script>
 
 <style scoped>

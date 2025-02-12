@@ -32,14 +32,14 @@
             </v-col>
           </v-row>
 
-          <v-alert v-if="selectedAnswer !== null" type="info" class="mt-6">
+          <v-alert v-if="selectedAnswer !== null" type="success" class="mt-6">
             Correct Answer: {{ currentQuestion.answers[correctAnswerIndex] }}
           </v-alert>
   
           <!-- Display Results -->
-            <v-alert v-if="results" type="info" class="mt-6">
-                Votes Received: {{ results.length }}
-            </v-alert>
+          <!-- <v-alert v-if="currentQuestionAnswerCount > 0" type="info" class="mt-6">
+              Votes Received: {{ currentQuestionAnswerCount }}
+          </v-alert> -->
 
         </v-card-text>
   
@@ -47,7 +47,6 @@
         <v-card-actions class="justify-center pb-6">
           <v-btn
             v-if="isAdmin"
-            :disabled="!allAnswered"
             color="success"
             x-large
             rounded
@@ -56,7 +55,11 @@
             class="start-button font-weight-bold"
           >
             Next Question
+            <v-icon v-if="!allAnswered" class="ml-2">mdi-alert-circle-outline</v-icon>
           </v-btn>
+          <p v-if="isAdmin && !allAnswered" class="text-caption mt-2">
+            Not all players have answered yet.
+          </p>
         </v-card-actions>
       </v-card>
     </v-container>
@@ -95,6 +98,17 @@ const allAnswered = computed(() => {
   return currentQuestionAnswers.length === players.value.length;
 });
 
+// Computed property to get the total number of answers for the current question
+const currentQuestionAnswerCount = computed(() => {
+  if (!results.value || currentQuestionIndex.value === null) return 0;
+
+  // Filter answers for the current question
+  const currentQuestionAnswers = results.value.filter(
+    (answer) => answer.questionIndex === currentQuestionIndex.value
+  );
+
+  return currentQuestionAnswers.length;
+});
 
 onMounted(() => {
   const lobbyDoc = doc(db, "lobbies", lobbyId);
@@ -170,7 +184,7 @@ const submitAnswer = async (index) => {
 
 // Admin function to advance to the next question
 const nextQuestion = async () => {
-  if (!allAnswered.value) return; // Prevent advancing if not all players have answered
+  // if (!allAnswered.value) return; // Prevent advancing if not all players have answered
 
   const lobbyDoc = doc(db, "lobbies", lobbyId);
   const newIndex = currentQuestionIndex.value + 1;

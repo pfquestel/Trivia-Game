@@ -38,11 +38,15 @@ body {
   transform: translateY(-5px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
-
-.selected-card {
-  background-color: #1976d2 !important;
+/* 
+button.mode-card.selected-card {
+  background-color: #d14836 !important;
   color: white !important;
-}
+} 
+
+button.mode-card.selected-card:disabled .v-btn__overlay {
+  opacity: 0.2;
+} */
 
 .start-button {
   transition: all 0.3s ease;

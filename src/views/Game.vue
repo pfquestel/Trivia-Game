@@ -9,14 +9,18 @@
           <!-- Answer Options -->
           <v-row justify="center" class="mb-2">
             <v-col
-              v-for="(answer, index) in currentQuestion.answers"
+              v-for="(answer, index) in randomizedAnswers"
               :key="index"
               cols="12"
               sm="6"
             >
               <v-btn
                 class="mode-card pa-4"
-                :class="{ 'selected-card': selectedAnswer === index }"
+                :class="{ 
+                  'selected-card': selectedAnswer === index,
+                  'correct-answer': selectedAnswer !== null && answerMapping[index] === correctAnswerIndex,
+                  'wrong-answer': selectedAnswer !== null && answerMapping[index] !== correctAnswerIndex && selectedAnswer === index
+                }"
                 :disabled="selectedAnswer !== null"
                 color="primary"
                 elevation="2"
@@ -27,6 +31,10 @@
               </v-btn>
             </v-col>
           </v-row>
+
+          <v-alert v-if="selectedAnswer !== null" type="info" class="mt-6">
+            Correct Answer: {{ currentQuestion.answers[correctAnswerIndex] }}
+          </v-alert>
   
           <!-- Display Results -->
             <v-alert v-if="results" type="info" class="mt-6">
@@ -63,6 +71,9 @@ import { useRouter } from "vue-router";
 
 const currentQuestion = ref({ question: "", answers: [] });
 const currentQuestionIndex = ref(null); // Track the current question index
+const randomizedAnswers = ref([]);
+const answerMapping = ref([]); // Maps randomized indices back to original indices
+const correctAnswerIndex = ref(0); // Always the first answer in the original list
 const results = ref(null);
 const isAdmin = ref(false);
 const questions = ref([]);
@@ -108,6 +119,16 @@ onMounted(() => {
         currentQuestionIndex.value = lobbyData.questionIndex; // Update the current index
         currentQuestion.value = questions.value[lobbyData.questionIndex]; // Update the question
         selectedAnswer.value = null; // Reset selectedAnswer only when question changes
+
+        // Store the correct answer index (always the first answer in the original list)
+        correctAnswerIndex.value = 0;
+
+        // Create a mapping and randomize the answers
+        const answersWithIndices = currentQuestion.value.answers.map((answer, index) => ({ answer, index }));
+        const randomized = answersWithIndices.sort(() => Math.random() - 0.5);
+
+        randomizedAnswers.value = randomized.map((item) => item.answer);
+        answerMapping.value = randomized.map((item) => item.index);
       }
     }
 
@@ -132,19 +153,20 @@ const submitAnswer = async (index) => {
   const lobbyDoc = doc(db, "lobbies", lobbyId);
   const userId = auth.currentUser.uid;
 
-  const isCorrect = currentQuestion.value.correctAnswerIndex === index;
+  // Map the selected randomized index back to the original index
+  const originalIndex = answerMapping.value[index];
+  const isCorrect = originalIndex === correctAnswerIndex.value;
 
   // Add questionIndex to each answer
   await updateDoc(lobbyDoc, {
     answers: arrayUnion({
       userId,
-      answerIndex: index,
+      answerIndex: originalIndex,
       isCorrect,
       questionIndex: currentQuestionIndex.value, // Tag with the current question index
     }),
   });
 };
-
 
 // Admin function to advance to the next question
 const nextQuestion = async () => {
@@ -157,6 +179,18 @@ const nextQuestion = async () => {
 };
 </script>
 
-  
 <style scoped>
+.correct-answer {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.wrong-answer {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.selected-card {
+  border: 2px solid #000 !important;
+}
 </style>

@@ -81,14 +81,15 @@
 import { ref, computed, onMounted } from "vue";
 import { doc, onSnapshot, getDocs, query, collection, where } from "firebase/firestore";
 import { db } from "../firebase";
+import { useRoute } from "vue-router";
 
-const mode = ref(new URLSearchParams(window.location.search).get("mode"));
 const players = ref([]);
 const answers = ref([]);
 const questions = ref([]);
 const totalQuestions = ref(0);
-
-const lobbyId = new URLSearchParams(window.location.search).get("id");
+const route = useRoute();
+const mode = route.query.mode;
+const lobbyId = route.query.id;
 
 onMounted(async () => {
   const lobbyDoc = doc(db, "lobbies", lobbyId);

@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
-  //base: '/Trivia-Game/',  // Match your GitHub repository name
+  base: '/Trivia-Game/',  // Match your GitHub repository name
   build: {
       outDir: 'dist'
   },

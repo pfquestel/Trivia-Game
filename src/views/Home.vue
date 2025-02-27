@@ -31,6 +31,7 @@
                   <v-card
                     :class="['mode-card', { 'selected-card': selectedMode === mode.value }, 'pa-5']"
                     elevation="2"
+                    :disabled="mode.disabled"
                     @click="selectMode(mode.value)"
                   >
                     <v-card-title class="text-center">{{ mode.label }}</v-card-title>
@@ -98,7 +99,7 @@
   const selectedMode = ref("");
   const lobbyCode = ref("");
   const modes = ref([
-    { label: "Would You Rather", value: "would_you_rather" },
+    { label: "Would You Rather", value: "would_you_rather", disabled: true },
     { label: "World Trivia", value: "world_trivia" },
   ]);
   
@@ -180,6 +181,10 @@ const joinLobby = async () => {
   .selected-card {
     background-color: rgb(55, 55, 184);
     color: white;
+  }
+
+  .mode-card.v-card--disabled {
+    background-color: #e7e7e7;
   }
   </style>
   

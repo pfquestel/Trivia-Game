@@ -40,17 +40,18 @@
   
   <script setup>
   import { ref, onMounted } from "vue";
-  import { useRouter } from "vue-router";
+  import { useRouter, useRoute } from "vue-router";
   import { doc, onSnapshot, updateDoc } from "firebase/firestore";
   import { db, auth } from "../firebase";
   
   const players = ref([]);
   const isAdmin = ref(false);
-  const mode = ref(new URLSearchParams(window.location.search).get("mode"));
   const router = useRouter();
-  const lobbyId = new URLSearchParams(window.location.search).get("id");
   const lobbyCode = ref("");
   const isStarted = ref(false);
+  const route = useRoute();
+  const mode = route.query.mode;
+  const lobbyId = route.query.id;
   
   onMounted(() => {
     const lobbyDoc = doc(db, "lobbies", lobbyId);

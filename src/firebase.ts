@@ -1,55 +1,38 @@
 import { initializeApp, type FirebaseOptions } from "firebase/app";
-import { getAuth, setPersistence, browserSessionPersistence, signInAnonymously, signOut, type Auth } from "firebase/auth";
-import { getFirestore, collection, addDoc, Firestore } from "firebase/firestore";
-
-async function decrypt(text: string, key: string): Promise<string> {
-  const parts = text.split(':');
-  const iv = new Uint8Array(parts.shift().match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-  const encryptedData = new Uint8Array(parts.join(':').match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-
-  const keyBuffer = new Uint8Array(key.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-
-  const cryptoKey = await window.crypto.subtle.importKey(
-      "raw",
-      keyBuffer,
-      { name: "AES-CBC", length: 256 },
-      false,
-      ["decrypt"]
-  );
-
-  const decryptedBuffer = await window.crypto.subtle.decrypt(
-      { name: "AES-CBC", iv: iv },
-      cryptoKey,
-      encryptedData
-  );
-
-  return new TextDecoder().decode(decryptedBuffer);
-}
+import { getAuth, setPersistence, browserSessionPersistence, signInAnonymously, signOut } from "firebase/auth";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+import CryptoJS from "crypto-js";
 
 // Get the encrypted config from environment variables
 const encryptedConfig = import.meta.env.VITE_FIREBASE_ENCRYPTED;
 const encryptionKey = import.meta.env.VITE_FIREBASE_KEY;
 
-var auth: Auth;
-var db: Firestore;
+// **Synchronous Decryption Function**
+function decryptAES(cipherText: string, key: string): string {
+    const keyBytes = CryptoJS.enc.Hex.parse(key);
+    const cipherParts = cipherText.split(":");
+    const iv = CryptoJS.enc.Hex.parse(cipherParts[0]);
+    const encryptedData = CryptoJS.enc.Hex.parse(cipherParts[1]);
 
-// Decrypt and initialize Firebase
-decrypt(encryptedConfig, encryptionKey).then(decryptedConfig => {
-  const firebaseConfig = JSON.parse(decryptedConfig);
+    const decrypted = CryptoJS.AES.decrypt(
+        { ciphertext: encryptedData },
+        keyBytes,
+        { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
+    );
 
-  console.log(firebaseConfig);
+    return decrypted.toString(CryptoJS.enc.Utf8);
+}
 
-  const app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db = getFirestore(app);
-  
-  signInAnonymously(auth).then((user) => {
-    console.log("User signed in anonymously", user);
-  });
+// **Decrypt Firebase Config Synchronously**
+const firebaseConfig: FirebaseOptions = JSON.parse(decryptAES(encryptedConfig, encryptionKey));
 
-  console.log("Firebase initialized successfully.");
-}).catch(error => {
-  console.error("Error decrypting Firebase config:", error);
+// **Initialize Firebase Immediately**
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+signInAnonymously(auth).then((user) => {
+  console.log("User signed in anonymously", user);
 });
 
 // Temporary for testing

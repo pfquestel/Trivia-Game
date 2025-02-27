@@ -96,7 +96,7 @@
 import { ref, onMounted, computed } from "vue";
 import { doc, onSnapshot, updateDoc, getDocs, query, collection, where, arrayUnion } from "firebase/firestore";
 import { db, auth } from "../firebase";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const showEndGameDialog = ref(false);
 const currentQuestion = ref({ question: "", answers: [] });
@@ -109,8 +109,9 @@ const isAdmin = ref(false);
 const questions = ref([]);
 const selectedAnswer = ref(null); // Tracks the selected answer
 const players = ref([]);
-const lobbyId = new URLSearchParams(window.location.search).get("id");
 const router = useRouter();
+const route = useRoute();
+const lobbyId = route.query.id;
 
 // Computed property to check if all players have answered
 const allAnswered = computed(() => {

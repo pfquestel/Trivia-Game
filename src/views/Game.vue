@@ -1,7 +1,7 @@
 <template>
     <v-container fluid class="activity-form-container">
       <v-card class="activity-form-card mx-auto" max-width="800" elevation="8">
-        <v-card-title class="text-h4 font-weight-bold text-center my-6">
+        <v-card-title class="text-h4 font-weight-bold text-center my-6 text-wrap">
           {{ currentQuestion.question }}
         </v-card-title>
   

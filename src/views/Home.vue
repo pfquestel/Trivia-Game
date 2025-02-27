@@ -176,5 +176,10 @@ const joinLobby = async () => {
       display: block;
     }
   }
+
+  .selected-card {
+    background-color: rgb(55, 55, 184);
+    color: white;
+  }
   </style>
   

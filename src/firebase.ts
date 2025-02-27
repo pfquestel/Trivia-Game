@@ -1,22 +1,55 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, setPersistence, browserSessionPersistence, signInAnonymously, signOut } from "firebase/auth";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { initializeApp, type FirebaseOptions } from "firebase/app";
+import { getAuth, setPersistence, browserSessionPersistence, signInAnonymously, signOut, type Auth } from "firebase/auth";
+import { getFirestore, collection, addDoc, Firestore } from "firebase/firestore";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCkIKlazu_avLDkLz_omcY7_UClR31ezuQ",
-    authDomain: "trivia-game-cb9e0.firebaseapp.com",
-    projectId: "trivia-game-cb9e0",
-    storageBucket: "trivia-game-cb9e0.firebasestorage.app",
-    messagingSenderId: "266951931350",
-    appId: "1:266951931350:web:5572788d469fad31b0a077"
-};
+async function decrypt(text: string, key: string): Promise<string> {
+  const parts = text.split(':');
+  const iv = new Uint8Array(parts.shift().match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+  const encryptedData = new Uint8Array(parts.join(':').match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+  const keyBuffer = new Uint8Array(key.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
 
-signInAnonymously(auth).then((user) => {
-  console.log("User signed in anonymously", user);
+  const cryptoKey = await window.crypto.subtle.importKey(
+      "raw",
+      keyBuffer,
+      { name: "AES-CBC", length: 256 },
+      false,
+      ["decrypt"]
+  );
+
+  const decryptedBuffer = await window.crypto.subtle.decrypt(
+      { name: "AES-CBC", iv: iv },
+      cryptoKey,
+      encryptedData
+  );
+
+  return new TextDecoder().decode(decryptedBuffer);
+}
+
+// Get the encrypted config from environment variables
+const encryptedConfig = import.meta.env.VITE_FIREBASE_ENCRYPTED;
+const encryptionKey = import.meta.env.VITE_FIREBASE_KEY;
+
+var auth: Auth;
+var db: Firestore;
+
+// Decrypt and initialize Firebase
+decrypt(encryptedConfig, encryptionKey).then(decryptedConfig => {
+  const firebaseConfig = JSON.parse(decryptedConfig);
+
+  console.log(firebaseConfig);
+
+  const app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  
+  signInAnonymously(auth).then((user) => {
+    console.log("User signed in anonymously", user);
+  });
+
+  console.log("Firebase initialized successfully.");
+}).catch(error => {
+  console.error("Error decrypting Firebase config:", error);
 });
 
 // Temporary for testing

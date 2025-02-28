@@ -110,61 +110,60 @@
   };
   
   const startLobby = async () => {
-  const user = auth.currentUser;
-  const mode = selectedMode.value;
-
-  const questionsSnapshot = await getDocs(
-    query(collection(db, "questions"), where("mode", "==", mode))
-  );
-  const totalQuestions = questionsSnapshot.size;
-
-  const code = nanoid(6);
-
-  const lobby = await addDoc(collection(db, "lobbies"), {
-    adminId: user.uid,
-    players: [{ userId: user.uid, name: name.value, score: 0 }],
-    mode,
-    questionIndex: 0,
-    code,
-    totalQuestions,
-  });
-
-  router.push(`/lobby?id=${lobby.id}&mode=${mode}`);
-};
-
-const joinLobby = async () => {
-  const q = query(collection(db, "lobbies"), where("code", "==", lobbyCode.value));
-  const querySnapshot = await getDocs(q);
-
-  if (!querySnapshot.empty) {
-    const lobby = querySnapshot.docs[0];
-    const lobbyRef = lobby.ref;
-    const lobbyData = lobby.data();
-
     const user = auth.currentUser;
-    if (!user) {
-      alert("You must be signed in to join a lobby.");
-      return;
-    }
+    const mode = selectedMode.value;
 
-    const isAlreadyInLobby = lobbyData.players.some(
-      (player) => player.userId === user.uid
+    const questionsSnapshot = await getDocs(
+      query(collection(db, "questions"), where("mode", "==", mode))
     );
+    const totalQuestions = questionsSnapshot.size;
 
-    if (!isAlreadyInLobby) {
-      const newPlayer = { userId: user.uid, name: name.value, score: 0 };
-      await updateDoc(lobbyRef, {
-        players: [...lobbyData.players, newPlayer],
-      });
+    const code = nanoid(6);
+
+    const lobby = await addDoc(collection(db, "lobbies"), {
+      adminId: user.uid,
+      players: [{ userId: user.uid, name: name.value, score: 0 }],
+      mode,
+      questionIndex: 0,
+      code,
+      totalQuestions,
+      questionsAsked: 0,  // New field to track the number of questions actually asked
+    });
+
+    router.push(`/lobby?id=${lobby.id}&mode=${mode}`);
+  };
+
+  const joinLobby = async () => {
+    const q = query(collection(db, "lobbies"), where("code", "==", lobbyCode.value));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const lobby = querySnapshot.docs[0];
+      const lobbyRef = lobby.ref;
+      const lobbyData = lobby.data();
+
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be signed in to join a lobby.");
+        return;
+      }
+
+      const isAlreadyInLobby = lobbyData.players.some(
+        (player) => player.userId === user.uid
+      );
+
+      if (!isAlreadyInLobby) {
+        const newPlayer = { userId: user.uid, name: name.value, score: 0 };
+        await updateDoc(lobbyRef, {
+          players: [...lobbyData.players, newPlayer],
+        });
+      }
+
+      router.push(`/lobby?id=${lobby.id}&mode=${lobbyData.mode}`);
+    } else {
+      alert("Invalid lobby code.");
     }
-
-    router.push(`/lobby?id=${lobby.id}&mode=${lobbyData.mode}`);
-  } else {
-    alert("Invalid lobby code.");
-  }
-};
-
-
+  };
   </script>
   
   <style scoped>  

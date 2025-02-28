@@ -26,7 +26,7 @@
                     height="20"
                     rounded
                   ></v-progress-linear>
-                  <div class="mt-2">{{ player.percentage }}% ({{ player.score }}/{{ totalQuestions }})</div>
+                  <div class="mt-2">{{ player.percentage }}% ({{ player.score }}/{{ questionsAsked }})</div>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -87,6 +87,7 @@ const players = ref([]);
 const answers = ref([]);
 const questions = ref([]);
 const totalQuestions = ref(0);
+const questionsAsked = ref(0);
 const route = useRoute();
 const mode = route.query.mode;
 const lobbyId = route.query.id;
@@ -100,6 +101,7 @@ onMounted(async () => {
     players.value = lobbyData.players || [];
     answers.value = lobbyData.answers || [];
     totalQuestions.value = lobbyData.totalQuestions || 0;
+    questionsAsked.value = lobbyData.questionsAsked || 0;
 
     if (mode.value === "would_you_rather") {
       // Fetch questions from the 'questions' collection based on mode
@@ -157,8 +159,14 @@ const sortedPlayers = computed(() => {
         (answer) => answer.userId === player.userId
       );
       const correctAnswers = playerAnswers.filter((answer) => answer.isCorrect).length;
-      const percentage = totalQuestions.value
-        ? Math.round((correctAnswers / totalQuestions.value) * 100)
+      let actualQuestionsAsked = totalQuestions.value; // Default to totalQuestions if `questionsAsked` is missing
+
+      if (questionsAsked) {
+          actualQuestionsAsked = questionsAsked.value; // Override with actual count
+      }
+
+      const percentage = actualQuestionsAsked
+        ? Math.round((correctAnswers / actualQuestionsAsked) * 100)
         : 0;
 
       return { ...player, score: correctAnswers, percentage };

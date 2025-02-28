@@ -217,12 +217,18 @@ const nextQuestion = async () => {
   const lobbyDoc = doc(db, "lobbies", lobbyId);
   const newIndex = currentQuestionIndex.value + 1;
 
-  await updateDoc(lobbyDoc, { questionIndex: newIndex });
+  await updateDoc(lobbyDoc, {
+    questionIndex: newIndex,
+    questionsAsked: newIndex,  // Increment questionsAsked field
+  });
 };
 
 const endGame = async () => {
   const lobbyDoc = doc(db, "lobbies", lobbyId);
-  await updateDoc(lobbyDoc, { questionIndex: questions.value.length });
+  await updateDoc(lobbyDoc, {
+    questionIndex: questions.value.length,
+    questionsAsked: currentQuestionIndex.value + 1,  // Assume the current question has been asked
+  });
   showEndGameDialog.value = false;
 };
 

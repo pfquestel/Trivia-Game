@@ -14,7 +14,7 @@
         <p class="text-subtitle-1 mb-2">Select an Avatar:</p>
         <div class="avatar-scroll-container">
           <v-row class="avatar-selection">
-            <v-col v-for="(avatar, index) in avatars" :key="index" cols="1" class="pa-1">
+            <v-col v-for="(avatar, index) in avatars" :key="index" cols="auto" class="pa-1">
               <div class="avatar-option" :class="{ selected: selectedAvatar === avatar.id }"
                 :style="{ backgroundPosition: avatar.position }" @click="selectedAvatar = avatar.id"></div>
             </v-col>
@@ -157,6 +157,7 @@ const joinLobby = async () => {
   display: flex;
   justify-content: center;
   gap: 10px;
+  width: 100%;
 }
 
 .avatar-option {

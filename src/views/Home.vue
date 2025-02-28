@@ -12,12 +12,14 @@
 
         <!-- Avatar Selection -->
         <p class="text-subtitle-1 mb-2">Select an Avatar:</p>
-        <v-row class="avatar-selection">
-          <v-col v-for="(avatar, index) in avatars" :key="index" cols="1" class="pa-1">
-            <div class="avatar-option" :class="{ selected: selectedAvatar === avatar.id }"
-              :style="{ backgroundPosition: avatar.position }" @click="selectedAvatar = avatar.id"></div>
-          </v-col>
-        </v-row>
+        <div class="avatar-scroll-container">
+          <v-row class="avatar-selection">
+            <v-col v-for="(avatar, index) in avatars" :key="index" cols="1" class="pa-1">
+              <div class="avatar-option" :class="{ selected: selectedAvatar === avatar.id }"
+                :style="{ backgroundPosition: avatar.position }" @click="selectedAvatar = avatar.id"></div>
+            </v-col>
+          </v-row>
+        </div>
 
         <v-divider class="my-6"></v-divider>
 
@@ -188,5 +190,12 @@ const joinLobby = async () => {
 
 .mode-card.v-card--disabled {
   background-color: #e7e7e7;
+}
+
+.avatar-scroll-container {
+  max-height: 180px; /* Limit height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Disable horizontal scrolling */
+  padding: 15px 0px; /* Add some spacing */
 }
 </style>

@@ -59,13 +59,13 @@ button.mode-card.selected-card:disabled .v-btn__overlay {
 .player-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px; /* Adds consistent spacing between cards */
+  gap: 12px; /* Adds consistent spacing between cards */
 }
 
 .player-item {
   flex: 1 1 calc(20% - 16px); /* Flex-grow, flex-shrink, and a minimum width of ~20% minus gap */
   min-width: 150px; /* Ensures cards don’t get too small */
-  max-width: 250px; /* Prevents cards from getting too large */
+  max-width: 150px; /* Prevents cards from getting too large */
   background-color: #f1f3f4;
   padding: 16px;
   text-align: center;
@@ -91,4 +91,18 @@ button.mode-card.selected-card:disabled .v-btn__overlay {
 
 .leaderboard-card:hover {
   transform: scale(1.05);
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  background-image: url('./assets/spritesheet.png');
+  background-size: 447px 519px; /* 460px 512px; Ensure accurate scaling */
+  border-radius: 50%;
+  border: 2px solid transparent;
+  margin-bottom: 10px;
+
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }

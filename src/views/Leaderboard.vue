@@ -17,9 +17,12 @@
               md="4"
               lg="3"
             >
-              <v-card class="pa-4 leaderboard-card" outlined>
-                <v-card-title class="text-center">{{ player.name }}</v-card-title>
-                <v-card-text class="text-center">
+              <v-card class="pa-2 leaderboard-card" outlined>
+                <v-card-title class="text-center">
+                  <div class="avatar" :style="{ backgroundPosition: getAvatarPosition(player.avatar) }"></div>
+                  <span>{{ player.name }}</span>
+                </v-card-title>
+                <v-card-text class="text-center pa-1">
                   <v-progress-linear
                     :model-value="player.percentage"
                     color="primary"
@@ -82,6 +85,7 @@ import { ref, computed, onMounted } from "vue";
 import { doc, onSnapshot, getDocs, query, collection, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { useRoute } from "vue-router";
+import { getAvatarPosition } from "../utils/avatarUtils"; // Import helper function
 
 const players = ref([]);
 const answers = ref([]);
